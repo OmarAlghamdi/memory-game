@@ -2,6 +2,118 @@
  * Create a list that holds all of your cards
  */
 
+class card {
+
+    constructor(no, isFlipped, isMatched, DOM){
+        this.id = no;
+        this.flipped = isFlipped;
+        this.matched = isMatched;
+        this.dom = DOM;
+    }
+    flip(){
+        incrementMoves();
+        if(!this.flipped){
+            this.flipped = true;
+            this.dom.className = "card show open";
+            if(openedCard == null){
+                openedCard = this;
+            } else {
+                this.match(this);
+            }
+        }
+    }
+    match(card){
+        if(card.dom.children[0].className == openedCard.dom.children[0].className){
+            card.matched = true;
+            card.dom.className = "card match";
+            openedCard.matched = true;
+            openedCard.dom.className = "card match";
+            openedCard = null;
+        } else {
+            setTimeout(function(){
+                card.flipped = false;
+                card.dom.className = "card";
+                openedCard.flipped = false;
+                openedCard.dom.className = "card";
+                openedCard = null;                
+            }, 500);
+        }
+
+    }
+    reset(){
+        this.flipped = false;
+        this.matched = false;
+        this.dom.className = "card";
+    }
+    
+    
+}
+
+
+let deck = [];
+let deckDOM = null;
+let openedCard = null;
+let moves = 0;
+
+
+function createDeck(){
+    getDOM();
+    for (let i = 0; i < 16; i++) {
+        const c = new card(i, false, false, deckDOM[i]);
+        deckDOM[i].addEventListener('click', listener);
+        deck.push(c);
+    }
+
+}
+
+function listener(e){
+    id = e.target.id;
+    deck[id].flip();
+}
+
+
+function incrementMoves(){
+    document.getElementsByClassName('moves')[0].textContent = ++moves;
+}
+function resetMoves(){
+    document.getElementsByClassName('moves')[0].textContent = moves = 0;
+}
+
+
+
+function restart(){
+
+    //moves = 0;
+    resetMoves(); 
+
+    for (const card of deck) {
+        card.reset();
+    }
+
+    shuffle(deckDOM);
+
+    const parent = document.getElementsByClassName('deck')[0];
+    for (const card of deckDOM) {
+        parent.removeChild(card);
+    }
+    for (const card of deckDOM) {
+        parent.appendChild(card);
+    }
+    
+}
+
+function getDOM(){
+    const cards = document.getElementsByClassName('card');
+    const dom = [];
+    for (const card of cards) {
+        dom.push(card);
+    }
+    deckDOM = dom;
+}
+
+
+
+
 
 /*
  * Display the cards on the page
@@ -24,6 +136,13 @@ function shuffle(array) {
 
     return array;
 }
+
+const resetBtn = document.getElementsByClassName('restart')[0];
+resetBtn.addEventListener('click', restart);
+
+createDeck();
+
+
 
 
 /*
