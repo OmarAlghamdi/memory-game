@@ -11,7 +11,8 @@ class card {
         this.dom = DOM;
     }
     flip(){
-        incrementMoves();
+        if(openedCard == null || openedCard != this)
+            incrementMoves();
         if(!this.flipped){
             this.flipped = true;
             this.dom.className = "card show open";
@@ -53,8 +54,32 @@ class card {
 let deck = [];
 let deckDOM = null;
 let openedCard = null;
-let moves = 0;
+let moves = 0, starCount = 5;
+let time = 0;
 
+
+
+setInterval(tick, 1000);
+
+function tick(){
+    time++;
+    
+    document.getElementsByClassName('time')[0].textContent = formatTime(time);
+}
+
+function formatTime(seconds){
+    let timeString = "", mm, ss;
+    mm = (seconds - seconds%60) / 60 ;
+    ss = seconds%60;
+    if(mm < 10)
+        timeString += "0";
+    timeString += mm;
+    timeString += ":";
+    if(ss <10)
+        timeString += "0";
+    timeString += ss;
+    return timeString;
+}
 
 function createDeck(){
     getDOM();
@@ -68,22 +93,44 @@ function createDeck(){
 
 function listener(e){
     id = e.target.id;
-    deck[id].flip();
+    try{
+        deck[id].flip();
+    } catch (e){
+
+    }
+    
 }
 
 
 function incrementMoves(){
     document.getElementsByClassName('moves')[0].textContent = ++moves;
+    if(moves > 20 && starCount > 1)
+        if(moves % 5 == 0){
+            const stars = document.getElementsByClassName('stars')[0];
+            const star = document.getElementsByTagName('li')[0];
+            stars.removeChild(star);
+            starCount--;
+        }
 }
 function resetMoves(){
     document.getElementsByClassName('moves')[0].textContent = moves = 0;
+    const stars = document.getElementsByClassName('stars')[0];
+    const star = document.getElementsByTagName('li')[0];
+    
+    for (let i = starCount; i < 5; i++) {
+        const newStar = document.createElement('LI');
+        newStar.innerHTML = star.innerHTML;
+        stars.appendChild(newStar);
+        starCount++;
+    }
 }
 
 
 
-function restart(){
+function newGame(){
 
-    //moves = 0;
+
+    time = 0;
     resetMoves(); 
 
     for (const card of deck) {
@@ -138,10 +185,10 @@ function shuffle(array) {
 }
 
 const resetBtn = document.getElementsByClassName('restart')[0];
-resetBtn.addEventListener('click', restart);
+resetBtn.addEventListener('click', newGame);
 
 createDeck();
-
+newGame();
 
 
 
