@@ -30,6 +30,9 @@ class card {
             openedCard.matched = true;
             openedCard.dom.className = "card match";
             openedCard = null;
+            matchedPairs++;
+            if (matchedPairs == 8) 
+                win();
         } else {
             setTimeout(function(){
                 card.flipped = false;
@@ -54,12 +57,29 @@ class card {
 let deck = [];
 let deckDOM = null;
 let openedCard = null;
-let moves = 0, starCount = 5;
-let time = 0;
+let starCount = 5;
+let moves = time = matchedPairs = 0;
+let timer;
+let winMsg = document.getElementsByClassName('win')[0];
 
 
+function win() {
+    winMsg.style.display = "block";
 
-setInterval(tick, 1000);
+    clearInterval(timer);
+    document.getElementsByClassName('r-time')[0].textContent = formatTime(time);
+    document.getElementsByClassName('r-moves')[0].textContent = moves;
+    let span = document.getElementsByClassName('star-holder')[0];
+    span.innerHTML = "";
+    for (let i = 0; i < starCount; i++) {
+        const newStar = document.createElement('I');
+        newStar.className = "fa fa-star";
+        span.appendChild(newStar);
+    }
+    
+}
+
+
 
 function tick(){
     time++;
@@ -127,10 +147,11 @@ function resetMoves(){
 
 
 
-function newGame(){
-
-
-    time = 0;
+function newGame() {
+    
+    winMsg.style.display = "none";
+    time = matchedPairs = 0;
+    timer = setInterval(tick, 1000);
     resetMoves(); 
 
     for (const card of deck) {
@@ -184,8 +205,11 @@ function shuffle(array) {
     return array;
 }
 
-const resetBtn = document.getElementsByClassName('restart')[0];
-resetBtn.addEventListener('click', newGame);
+const resetBtns = document.getElementsByClassName('restart');
+for (let i = 0; i < resetBtns.length; i++) {
+    resetBtns[i].addEventListener('click', newGame);    
+}
+
 
 createDeck();
 newGame();
